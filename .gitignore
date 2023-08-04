@@ -1,0 +1,7 @@
+.vscode/
+*.bak
+*.iml
+*.log
+*.swo
+*.swp
+*.sum
