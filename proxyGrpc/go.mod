@@ -5,6 +5,7 @@ go 1.20
 require (
 	github.com/SherLzp/goRecrypt v0.0.0-20200405110533-a55273ae0aeb
 	github.com/fentec-project/gofe v0.0.0-20220829150550-ccc7482d20ef
+	github.com/mansub-song/ipfsUser v0.0.0
 	google.golang.org/grpc v1.57.0
 	google.golang.org/protobuf v1.30.0
 )
@@ -21,3 +22,5 @@ require (
 )
 
 replace github.com/SherLzp/goRecrypt => ../goRecrypt
+
+replace github.com/mansub-song/ipfsUser => ../ipfsUser

@@ -18,6 +18,7 @@ import (
 	"github.com/SherLzp/goRecrypt/curve"
 	"github.com/SherLzp/goRecrypt/recrypt"
 	"github.com/fentec-project/gofe/abe"
+	ipfsUser "github.com/mansub-song/ipfsUser"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -164,10 +165,13 @@ func (s *server) GetReEncryptionKey(ctx context.Context, in *ProxyNodeSendReques
 }
 
 func ServerInit() {
+	//TODO: 지워야함
 	priKey, pubKey, _ = curve.GenerateKeys()
 	fame = abe.NewFAME()
 	famePubKey, fameSecKey, _ = fame.GenerateMasterKeys()
 
+	ipfsUser.GenKeys()
+	// fmt.Println("ipfsUser private:", len(ipfsUser.PriKey, len(ipfsUser.PubKey)))
 	localIP := GetLocalIP().String()
 	lis, err := net.Listen("tcp", fmt.Sprintf(localIP+":%d", port))
 	if err != nil {

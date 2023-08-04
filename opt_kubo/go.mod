@@ -185,6 +185,7 @@ require (
 	github.com/libp2p/go-reuseport v0.2.0 // indirect
 	github.com/libp2p/go-yamux/v4 v4.0.0 // indirect
 	github.com/libp2p/zeroconf/v2 v2.2.0 // indirect
+	github.com/mansub-song/ipfsUser v0.0.0 // indirect
 	github.com/marten-seemann/tcp v0.0.0-20210406111302-dfbc87cc63fd // indirect
 	github.com/mattn/go-colorable v0.1.4 // indirect
 	github.com/mattn/go-isatty v0.0.17 // indirect
@@ -254,5 +255,7 @@ require (
 replace github.com/mansub-song/proxyGrpc => ../proxyGrpc
 
 replace github.com/SherLzp/goRecrypt => ../goRecrypt
+
+replace github.com/mansub-song/ipfsUser => ../ipfsUser
 
 go 1.18
