@@ -1,0 +1,51 @@
+// Copyright 2015 gRPC authors.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+option go_package = "github.com/mansub-song/proxyGrpc";
+
+
+package proxyGrpc;
+
+// The greeting service definition.
+service Greeter {
+  rpc GetAttributeKeyCipher (ClientSendRequest) returns (ClientReceiveReply) {}
+  rpc GetReEncryptionKey (ProxyNodeSendRequest) returns (ProxyNodeReceiveReply) {} 
+}
+
+
+message ClientSendRequest {
+    string Cid =1 ;
+    string AttributeSet = 2;
+    bytes PubKey = 3;
+}
+
+message ClientReceiveReply {
+    bytes NewCapsule = 1;
+    bytes ReEncPubKey = 2; //proxy public key
+    bytes CipherText = 3;
+}
+
+message ProxyNodeSendRequest {
+    string AttributeSet = 1;
+    bytes ClientPubKey = 2;
+}
+
+message ProxyNodeReceiveReply {
+    string ReEncKey = 1; //big.Int 자료형
+    bytes ReEncPubKey = 2; //proxy public key
+    bytes CipherText = 3; 
+    bytes Capsule = 4;
+}
