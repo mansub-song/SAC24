@@ -258,4 +258,6 @@ replace github.com/SherLzp/goRecrypt => ../goRecrypt
 
 replace github.com/mansub-song/ipfsUser => ../ipfsUser
 
+replace github.com/ipfs/go-unixfs => ../opt_ipfs-package/go-unixfs@v0.4.4
+
 go 1.18

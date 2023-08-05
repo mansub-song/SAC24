@@ -23,7 +23,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-const port = 50051
+const Port = 50051
 
 var priKey *ecdsa.PrivateKey
 var pubKey *ecdsa.PublicKey
@@ -61,7 +61,7 @@ func (s *server) GetAttributeKeyCipher(ctx context.Context, in *ClientSendReques
 
 	// data owner와 연결
 	ip := "147.46.240.242"
-	conn, err := grpc.Dial(ip+":"+strconv.Itoa(port), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.Dial(ip+":"+strconv.Itoa(Port), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
@@ -173,7 +173,7 @@ func ServerInit() {
 	ipfsUser.GenKeys()
 	// fmt.Println("ipfsUser private:", len(ipfsUser.PriKey, len(ipfsUser.PubKey)))
 	localIP := GetLocalIP().String()
-	lis, err := net.Listen("tcp", fmt.Sprintf(localIP+":%d", port))
+	lis, err := net.Listen("tcp", fmt.Sprintf(localIP+":%d", Port))
 	if err != nil {
 		fmt.Printf("failed to listen: %v", err)
 	}

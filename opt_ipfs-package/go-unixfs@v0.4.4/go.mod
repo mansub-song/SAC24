@@ -1,6 +1,7 @@
 module github.com/ipfs/go-unixfs
 
 require (
+	github.com/mansub-song/ipfsUser v0.0.0
 	github.com/alecthomas/units v0.0.0-20210927113745-59d0afb8317a
 	github.com/gogo/protobuf v1.3.2
 	github.com/ipfs/go-bitfield v1.1.0
@@ -75,5 +76,6 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	lukechampine.com/blake3 v1.1.7 // indirect
 )
+replace github.com/mansub-song/ipfsUser => /home/mssong/SAC24/ipfsUser
 
 go 1.19

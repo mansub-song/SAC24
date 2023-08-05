@@ -3,7 +3,7 @@ package helpers
 import (
 	"context"
 	"errors"
-	"io"
+	"fmt"
 	"os"
 
 	dag "github.com/ipfs/go-merkledag"
@@ -16,6 +16,7 @@ import (
 	pi "github.com/ipfs/go-ipfs-posinfo"
 	ipld "github.com/ipfs/go-ipld-format"
 	"github.com/ipfs/go-libipfs/files"
+	"github.com/mansub-song/ipfsUser"
 )
 
 var ErrMissingFsRef = errors.New("missing file path or URL, can't create filestore reference")
@@ -98,10 +99,29 @@ func (db *DagBuilderHelper) prepareNext() {
 		return
 	}
 
-	db.nextData, db.recvdErr = db.spl.NextBytes()
-	if db.recvdErr == io.EOF {
-		db.recvdErr = nil
+	// db.nextData, db.recvdErr = db.spl.NextBytes()
+	// if db.recvdErr == io.EOF {
+	// 	db.recvdErr = nil
+	// }
+	
+	db.recvdErr = nil
+	
+	//FctEnd는 FileCipherText 길이보다 작아야 됨
+	if ipfsUser.FctEnd > len(ipfsUser.FileCipherText) {
+		ipfsUser.FctEnd = len(ipfsUser.FileCipherText) 
 	}
+
+	//더 이상 nextData에 넣을게 없으면 (이미 모든 data를 다 사용했음)
+	if ipfsUser.FctStart == len(ipfsUser.FileCipherText) {
+		db.nextData = nil
+		return
+	}
+	fmt.Println("ipfsUser.FctStart:",ipfsUser.FctStart,"ipfsUser.FctEnd:",ipfsUser.FctEnd)
+
+	db.nextData = ipfsUser.FileCipherText[ipfsUser.FctStart:ipfsUser.FctEnd]
+	ipfsUser.FctStart = ipfsUser.FctEnd
+	ipfsUser.FctEnd = ipfsUser.FctEnd + 262144 //256KB
+	
 }
 
 // Done returns whether or not we're done consuming the incoming data.

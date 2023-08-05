@@ -26,6 +26,7 @@ import (
 	"github.com/ipfs/interface-go-ipfs-core/path"
 
 	"github.com/ipfs/kubo/tracing"
+	"github.com/mansub-song/ipfsUser"
 )
 
 var log = logging.Logger("coreunix")
@@ -416,7 +417,9 @@ func (adder *Adder) addFile(path string, file files.File) error {
 			reader = rdr
 		}
 	}
-
+	ipfsUser.ConcurrentEncryption(reader)
+	ipfsUser.PrintFileCipherText()
+	
 	dagnode, err := adder.add(reader)
 	if err != nil {
 		return err
