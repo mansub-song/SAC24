@@ -17,7 +17,7 @@ import (
 )
 
 func main() {
-	flag.Parse()
+
 	// Set up a connection to the server.
 	conn, err := grpc.Dial("147.46.240.242:50051", grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
@@ -45,7 +45,11 @@ func main() {
 	clientPriKeyString := string(clientPubKeyBytes)
 	fmt.Println(clientPriKeyString)
 	fmt.Printf("clientPubKey:%#v\n", clientPubKey)
+
+	//AttributeSet 설정
 	attributeSet := "0,2,3,5"
+
+	//Grpc function 호출
 	r, err := c.GetAttributeKeyCipher(ctx, &pb.ClientSendRequest{Cid: cid, AttributeSet: attributeSet, PubKey: clientPubKeyBytes})
 	if err != nil {
 		log.Fatalf("could not greet: %v", err)
