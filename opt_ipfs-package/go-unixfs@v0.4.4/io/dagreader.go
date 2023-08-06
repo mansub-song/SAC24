@@ -288,7 +288,9 @@ func (dr *dagReader) writeNodeDataBuffer(w io.Writer) (int64, error) {
 // TODO: This implementation is very similar to `CtxReadFull`,
 // the common parts should be abstracted away.
 func (dr *dagReader) WriteTo(w io.Writer) (n int64, err error) {
+	//mssong
 	// debug.PrintStack()
+	ipfsUser.Reset()
 	// Use the internal reader's context to fetch the child node promises
 	// (see `ipld.NavigableIPLDNode.FetchChild` for details).
 	dr.dagWalker.SetContext(dr.ctx)
