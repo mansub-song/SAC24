@@ -17,6 +17,7 @@ import (
 	mfs "github.com/ipfs/go-mfs"
 	coreiface "github.com/ipfs/interface-go-ipfs-core"
 	"github.com/ipfs/interface-go-ipfs-core/options"
+	"github.com/mansub-song/ipfsUser"
 	mh "github.com/multiformats/go-multihash"
 )
 
@@ -189,6 +190,7 @@ See 'dag export' and 'dag import' for more information.
 		if err != nil {
 			return err
 		}
+		ipfsUser.Reset()
 
 		progress, _ := req.Options[progressOptionName].(bool)
 		trickle, _ := req.Options[trickleOptionName].(bool)
