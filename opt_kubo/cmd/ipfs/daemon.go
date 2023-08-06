@@ -38,7 +38,6 @@ import (
 	mprome "github.com/ipfs/go-metrics-prometheus"
 	options "github.com/ipfs/interface-go-ipfs-core/options"
 	goprocess "github.com/jbenet/goprocess"
-	"github.com/mansub-song/ipfsUser"
 	"github.com/mansub-song/proxyGrpc"
 	ma "github.com/multiformats/go-multiaddr"
 	manet "github.com/multiformats/go-multiaddr/net"
@@ -615,7 +614,7 @@ take effect.
 	}
 
 	//mssong
-	ipfsUser.GenKeys()
+	proxyGrpc.GenKeys() // PKI, FAME key 생성
 	// fmt.Println("ipfsUser.PriKey:", ipfsUser.PriKey)
 	proxyGrpc.ServerInit()
 

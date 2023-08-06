@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/fentec-project/gofe/abe"
+	"github.com/mansub-song/proxyGrpc"
 )
 
 var NumThread = 4
@@ -103,11 +104,11 @@ func ConcurrentEncryption(reader io.Reader) {
 	// if err != nil {
 	// 	log.Fatalf("Failed to generate fame keys: %v", err)
 	// }
-	pubKeyBytes, err := json.Marshal(FamePubKey)
+	pubKeyBytes, err := json.Marshal(proxyGrpc.FamePubKey)
 	if err != nil {
 		log.Fatalf("Failed to marshal pubKeyBytes: %v", err)
 	}
-	secKeyBytes, err := json.Marshal(FameSecKey)
+	secKeyBytes, err := json.Marshal(proxyGrpc.FameSecKey)
 	if err != nil {
 		log.Fatalf("Failed to marshal secKeyBytes: %v", err)
 	}
@@ -128,14 +129,15 @@ func ConcurrentEncryption(reader io.Reader) {
 	header = append(header, pubKeyBytes...)
 	fmt.Println("after push pubKeyBytes to header:", len(header))
 	var secretHeader string
+	// iv (16bytes) + string(shuffleArr) (256bytes) + AESKeys (32bytes*N)
+	secretHeader = secretHeader + iv + string(shuffleArr)
 	for i := 0; i < NumThread; i++ {
 		secretHeader = secretHeader + aesKey[i]
 	}
-	fmt.Printf("size aesKeys: %d, shuffleArr: %d, iv: %d \n", len(secretHeader), len(shuffleArr), len(iv))
-	secretHeader = secretHeader + string(shuffleArr) + iv
+	fmt.Printf("size secretHeader: %d, shuffleArr: %d, iv(len): %d, iv:%s \n", len(secretHeader), len(shuffleArr), len(iv), iv)
 
 	//fame encryption
-	fameCipher, err := Fame.Encrypt(secretHeader, msp, FamePubKey)
+	fameCipher, err := proxyGrpc.Fame.Encrypt(secretHeader, msp, proxyGrpc.FamePubKey)
 	if err != nil {
 		log.Fatalf("Failed to encrypt of fame: %v", err)
 	}

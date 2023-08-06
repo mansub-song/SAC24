@@ -16,7 +16,6 @@ import (
 	// pb "SAC24/proxyGrpc"
 
 	"github.com/SherLzp/goRecrypt/recrypt"
-	"github.com/fentec-project/gofe/abe"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -25,11 +24,11 @@ const GrpcPort = 50051
 const DataOwnerIP = "147.46.240.242"
 const DataOwnerPort = GrpcPort
 
-var priKey *ecdsa.PrivateKey
-var pubKey *ecdsa.PublicKey
-var famePubKey *abe.FAMEPubKey
-var fameSecKey *abe.FAMESecKey
-var fame *abe.FAME
+// var priKey *ecdsa.PrivateKey
+// var pubKey *ecdsa.PublicKey
+// var famePubKey *abe.FAMEPubKey
+// var fameSecKey *abe.FAMESecKey
+// var fame *abe.FAME
 
 // server is used to implement reapGRPC.GreeterServer.
 type server struct {
@@ -72,7 +71,7 @@ func (s *server) GetAttributeKeyCipher(ctx context.Context, in *ClientSendReques
 	defer cancel()
 
 	//data owner와 rpc 통신
-	fmt.Println("here?????")
+	// fmt.Println("here?????")
 	dataOwnerReply, err := c.GetReEncryptionKey(ctx, &ProxyNodeSendRequest{AttributeSet: attributeSet, ClientPubKey: clientPubKey})
 	if err != nil {
 		log.Fatalf("Failed to GetReEncryptionKey rpc function: %v", err)
@@ -116,7 +115,8 @@ func (s *server) GetReEncryptionKey(ctx context.Context, in *ProxyNodeSendReques
 
 	// fmt.Println("attrSet:", attrSet)
 	//attribute key 생성
-	attributeKey, err := fame.GenerateAttribKeys(attrSet, fameSecKey)
+	fmt.Println("attrSet:", attrSet, "fameSecKey:", FameSecKey)
+	attributeKey, err := Fame.GenerateAttribKeys(attrSet, FameSecKey)
 	if err != nil {
 		// log.Fatalf("Failed to GenerateAttribKeys: %v", err)
 		panic(err)
@@ -129,7 +129,7 @@ func (s *server) GetReEncryptionKey(ctx context.Context, in *ProxyNodeSendReques
 	}
 
 	fmt.Println("attributeKey:", attributeKeyBytes, len(attributeKeyBytes))
-	cipherText, capsule, err := recrypt.Encrypt(string(attributeKeyBytes), pubKey)
+	cipherText, capsule, err := recrypt.Encrypt(string(attributeKeyBytes), PubKey)
 	if err != nil {
 		// log.Fatalf("Failed to Encrypt: %v", err)
 		panic(err)
@@ -145,7 +145,7 @@ func (s *server) GetReEncryptionKey(ctx context.Context, in *ProxyNodeSendReques
 	}
 	clientPubKey := clientPubKey_any.(*ecdsa.PublicKey)
 	fmt.Printf("clientPubKey:%#v\n", clientPubKey)
-	rk, pubX, err := recrypt.ReKeyGen(priKey, clientPubKey)
+	rk, pubX, err := recrypt.ReKeyGen(PriKey, clientPubKey)
 	if err != nil {
 		// log.Fatalf("Failed to ReKeyGen: %v", err)
 		panic(err)

@@ -1,4 +1,4 @@
-package ipfsUser
+package proxyGrpc
 
 import (
 	"crypto/ecdsa"
