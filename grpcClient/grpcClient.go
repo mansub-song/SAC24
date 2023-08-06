@@ -4,22 +4,25 @@ import (
 	"context"
 	"crypto/ecdsa"
 	"crypto/x509"
-	"flag"
+	"encoding/json"
 	"fmt"
 	"log"
 	"time"
 
 	"github.com/SherLzp/goRecrypt/curve"
 	"github.com/SherLzp/goRecrypt/recrypt"
+	"github.com/fentec-project/gofe/abe"
 	pb "github.com/mansub-song/proxyGrpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
 
+const ProxyIP = "147.46.240.242"
+
 func main() {
 
 	// Set up a connection to the server.
-	conn, err := grpc.Dial("147.46.240.242:50051", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.Dial(ProxyIP+":50051", grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
@@ -64,11 +67,17 @@ func main() {
 	reEncPubKeyBytes_any, err := x509.ParsePKIXPublicKey(reEncPubKeyBytes)
 	reEncPubKey := reEncPubKeyBytes_any.(*ecdsa.PublicKey)
 
-	plainText, err := recrypt.Decrypt(clientPriKey, capsule, reEncPubKey, cipherText)
+	attributeKeyBytes, err := recrypt.Decrypt(clientPriKey, capsule, reEncPubKey, cipherText)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	fmt.Println("client plianText:", plainText, len(plainText))
+	var attributeKey *abe.FAMEAttribKeys
+	err = json.Unmarshal(attributeKeyBytes, attributeKey)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	// fmt.Println("client plianText:", plainText, len(plainText))
 
 }

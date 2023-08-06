@@ -17,25 +17,22 @@ import (
 	"github.com/fentec-project/gofe/abe"
 )
 
-var numThread = 4
-var count = 256 // shuffle 영역 수
-var FileCipherText []byte
-var FctStart = 0
-var FctEnd = 262144 //256KB
+var NumThread = 4
+var Count = 256 // shuffle 영역 수
 
 func PrintFileCipherText() {
 	// fmt.Println(FileCipherText)
-	fmt.Println("size FileCipherText:",len(FileCipherText))
+	fmt.Println("size FileCipherText:", len(FileCipherText))
 }
 
 func ConcurrentEncryption(reader io.Reader) {
 	plaintext := StreamToByte(reader)
-	fmt.Println("size plaintext:",len(plaintext))
-	shuffleArr := make([]byte, count)
-	for i := 0; i < count; i++ {
+	fmt.Println("size plaintext:", len(plaintext))
+	shuffleArr := make([]byte, Count)
+	for i := 0; i < Count; i++ {
 		shuffleArr[i] = byte(i)
 	}
-	for i := 0; i < count; i++ {
+	for i := 0; i < Count; i++ {
 		rand.Shuffle(len(shuffleArr), func(i, j int) {
 			shuffleArr[i], shuffleArr[j] = shuffleArr[j], shuffleArr[i]
 		})
@@ -43,12 +40,12 @@ func ConcurrentEncryption(reader io.Reader) {
 
 	//thread 만큼의 region을 분리해서 각 리전에 대해서 sorting
 	var w sync.WaitGroup
-	w.Add(numThread)
-	for i := 0; i < numThread; i++ {
+	w.Add(NumThread)
+	for i := 0; i < NumThread; i++ {
 		go func(i int) {
 			defer w.Done()
-			shuffleStart := i * (count / numThread)
-			shuffleEnd := (i + 1) * (count / numThread)
+			shuffleStart := i * (Count / NumThread)
+			shuffleEnd := (i + 1) * (Count / NumThread)
 			ConcurentSortShuffling(shuffleArr[shuffleStart:shuffleEnd])
 		}(i)
 	}
@@ -57,8 +54,8 @@ func ConcurrentEncryption(reader io.Reader) {
 	//shuffle arrary 기반으로 data shuffling
 	//TODO: data shuffling없이 encryption 되도록 고쳐야 됨
 	st := time.Now()
-	shuffleSpace := len(plaintext) / count
-	for i := 0; i < count; i++ {
+	shuffleSpace := len(plaintext) / Count
+	for i := 0; i < Count; i++ {
 		tmp := make([]byte, shuffleSpace) // need fresh memory
 		srcStart := i * shuffleSpace
 		srcEnd := (i + 1) * shuffleSpace
@@ -75,30 +72,30 @@ func ConcurrentEncryption(reader io.Reader) {
 
 	// fmt.Println("len plaintext", len(plaintext)) //length correct
 	//concurrent encryption
-	ciphertext := make([][]byte, numThread)
-	aesKey := make([]string, numThread)
+	ciphertext := make([][]byte, NumThread)
+	aesKey := make([]string, NumThread)
 	iv := "1234567890123456"
-	w.Add(numThread)
-	threadSpace := len(plaintext) / numThread
-	for i := 0; i < numThread; i++ {
+	w.Add(NumThread)
+	threadSpace := len(plaintext) / NumThread
+	for i := 0; i < NumThread; i++ {
 		go func(i int) {
 			defer w.Done()
 			start := i * threadSpace
 			end := (i + 1) * threadSpace
 			aesKey[i] = "12345678901234567890123456789012"
-			// shuffleStart := i * (count / numThread)
-			// shuffleEnd := (i + 1) * (count / numThread)
+			// shuffleStart := i * (Count / NumThread)
+			// shuffleEnd := (i + 1) * (Count / NumThread)
 			ciphertext[i] = threadEncryption(plaintext[start:end], aesKey[i], iv)
 		}(i)
 	}
 	w.Wait()
 
 	totalCiphertextSize := 0
-	for i:=0;i<numThread;i++ {
-		fmt.Printf("size ciphertext[%d]: %d\n",i,len(ciphertext[i]))
+	for i := 0; i < NumThread; i++ {
+		fmt.Printf("size ciphertext[%d]: %d\n", i, len(ciphertext[i]))
 		totalCiphertextSize = totalCiphertextSize + len(ciphertext[i])
 	}
-	fmt.Println("size totalCiphertextSize:",totalCiphertextSize)
+	fmt.Println("size totalCiphertextSize:", totalCiphertextSize)
 
 	//FAME
 	// fame := abe.NewFAME()
@@ -125,14 +122,16 @@ func ConcurrentEncryption(reader io.Reader) {
 	//header 만들기
 	header := make([]byte, 0)
 	var famePubkeyLen []byte = big.NewInt(int64(len(pubKeyBytes))).Bytes()
+	fmt.Println("famePubkeyLen:", famePubkeyLen)
 	header = append(header, famePubkeyLen...)
 	fmt.Println("after push famePubkeyLen to header:", len(header))
 	header = append(header, pubKeyBytes...)
 	fmt.Println("after push pubKeyBytes to header:", len(header))
 	var secretHeader string
-	for i := 0; i < numThread; i++ {
+	for i := 0; i < NumThread; i++ {
 		secretHeader = secretHeader + aesKey[i]
 	}
+	fmt.Printf("size aesKeys: %d, shuffleArr: %d, iv: %d \n", len(secretHeader), len(shuffleArr), len(iv))
 	secretHeader = secretHeader + string(shuffleArr) + iv
 
 	//fame encryption
@@ -154,10 +153,10 @@ func ConcurrentEncryption(reader io.Reader) {
 
 	FileCipherText = make([]byte, 0)
 	FileCipherText = append(FileCipherText, header...)
-	for i := 0; i < numThread; i++ {
+	for i := 0; i < NumThread; i++ {
 		FileCipherText = append(FileCipherText, ciphertext[i]...)
 	}
-	fmt.Println("len FileCipherText:",len(FileCipherText))
+	fmt.Println("len FileCipherText:", len(FileCipherText))
 	//return FileCipherText
 }
 

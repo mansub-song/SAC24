@@ -18,4 +18,5 @@ func GenKeys() {
 	PriKey, PubKey, _ = curve.GenerateKeys()
 	Fame = abe.NewFAME()
 	FamePubKey, FameSecKey, _ = Fame.GenerateMasterKeys()
+	// fmt.Println("PriKey:", PriKey)
 }

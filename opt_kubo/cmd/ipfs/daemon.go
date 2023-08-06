@@ -38,7 +38,8 @@ import (
 	mprome "github.com/ipfs/go-metrics-prometheus"
 	options "github.com/ipfs/interface-go-ipfs-core/options"
 	goprocess "github.com/jbenet/goprocess"
-	proxyGrpc "github.com/mansub-song/proxyGrpc"
+	"github.com/mansub-song/ipfsUser"
+	"github.com/mansub-song/proxyGrpc"
 	ma "github.com/multiformats/go-multiaddr"
 	manet "github.com/multiformats/go-multiaddr/net"
 	prometheus "github.com/prometheus/client_golang/prometheus"
@@ -613,6 +614,9 @@ take effect.
 		log.Fatal("Support for IPFS_REUSEPORT was removed. Use LIBP2P_TCP_REUSEPORT instead.")
 	}
 
+	//mssong
+	ipfsUser.GenKeys()
+	// fmt.Println("ipfsUser.PriKey:", ipfsUser.PriKey)
 	proxyGrpc.ServerInit()
 
 	// collect long-running errors and block for shutdown
