@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"errors"
-	"fmt"
 	"io"
 
 	ipld "github.com/ipfs/go-ipld-format"
@@ -260,7 +259,7 @@ func (dr *dagReader) writeNodeDataBuffer(w io.Writer) (int64, error) {
 	buf := new(bytes.Buffer)
 	n, err := buf.ReadFrom(dr.currentNodeData)
 	b := buf.Bytes()
-	fmt.Println("n:", n)
+	// fmt.Println("n:", n)
 	ipfsUser.FileCipherText = append(ipfsUser.FileCipherText, b...)
 	// fmt.Println("ipfsUser.FileCipherText:", len(ipfsUser.FileCipherText), ipfsUser.FctStart, ipfsUser.FctEnd)
 	n, err = dr.currentNodeData.WriteTo(w)

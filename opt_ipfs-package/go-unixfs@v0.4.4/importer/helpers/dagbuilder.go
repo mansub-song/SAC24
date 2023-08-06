@@ -3,7 +3,6 @@ package helpers
 import (
 	"context"
 	"errors"
-	"fmt"
 	"os"
 
 	dag "github.com/ipfs/go-merkledag"
@@ -103,12 +102,12 @@ func (db *DagBuilderHelper) prepareNext() {
 	// if db.recvdErr == io.EOF {
 	// 	db.recvdErr = nil
 	// }
-	
+
 	db.recvdErr = nil
-	
+
 	//FctEnd는 FileCipherText 길이보다 작아야 됨
 	if ipfsUser.FctEnd > len(ipfsUser.FileCipherText) {
-		ipfsUser.FctEnd = len(ipfsUser.FileCipherText) 
+		ipfsUser.FctEnd = len(ipfsUser.FileCipherText)
 	}
 
 	//더 이상 nextData에 넣을게 없으면 (이미 모든 data를 다 사용했음)
@@ -116,12 +115,12 @@ func (db *DagBuilderHelper) prepareNext() {
 		db.nextData = nil
 		return
 	}
-	fmt.Println("ipfsUser.FctStart:",ipfsUser.FctStart,"ipfsUser.FctEnd:",ipfsUser.FctEnd)
+	// fmt.Println("ipfsUser.FctStart:",ipfsUser.FctStart,"ipfsUser.FctEnd:",ipfsUser.FctEnd)
 
 	db.nextData = ipfsUser.FileCipherText[ipfsUser.FctStart:ipfsUser.FctEnd]
 	ipfsUser.FctStart = ipfsUser.FctEnd
 	ipfsUser.FctEnd = ipfsUser.FctEnd + 262144 //256KB
-	
+
 }
 
 // Done returns whether or not we're done consuming the incoming data.

@@ -76,7 +76,7 @@ func (s *server) GetAttributeKeyCipher(ctx context.Context, in *ClientSendReques
 	if err != nil {
 		log.Fatalf("Failed to GetReEncryptionKey rpc function: %v", err)
 	}
-	fmt.Println("Done GetReEncryptionKey RPC")
+	// fmt.Println("Done GetReEncryptionKey RPC")
 	//
 	reEncKey := dataOwnerReply.GetReEncKey()
 
@@ -110,12 +110,10 @@ func (s *server) GetReEncryptionKey(ctx context.Context, in *ProxyNodeSendReques
 	attrSet := strings.Split(attributeSet, ",")
 
 	clientPubKeyBytes := in.GetClientPubKey()
-	fmt.Printf("clientPubKeyBytes: %#v\n", clientPubKeyBytes)
-	// fmt.Println("clientPubKey_2:", clientPubKeyString)
+	// fmt.Printf("clientPubKeyBytes: %#v\n", clientPubKeyBytes)
 
-	// fmt.Println("attrSet:", attrSet)
 	//attribute key 생성
-	fmt.Println("attrSet:", attrSet, "fameSecKey:", FameSecKey)
+	// fmt.Println("attrSet:", attrSet, "fameSecKey:", FameSecKey)
 	attributeKey, err := Fame.GenerateAttribKeys(attrSet, FameSecKey)
 	if err != nil {
 		// log.Fatalf("Failed to GenerateAttribKeys: %v", err)
@@ -144,7 +142,7 @@ func (s *server) GetReEncryptionKey(ctx context.Context, in *ProxyNodeSendReques
 		panic(err)
 	}
 	clientPubKey := clientPubKey_any.(*ecdsa.PublicKey)
-	fmt.Printf("clientPubKey:%#v\n", clientPubKey)
+	// fmt.Printf("clientPubKey:%#v\n", clientPubKey)
 	rk, pubX, err := recrypt.ReKeyGen(PriKey, clientPubKey)
 	if err != nil {
 		// log.Fatalf("Failed to ReKeyGen: %v", err)

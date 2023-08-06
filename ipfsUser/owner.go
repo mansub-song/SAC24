@@ -28,7 +28,7 @@ func PrintFileCipherText() {
 
 func ConcurrentEncryption(reader io.Reader) {
 	plaintext := StreamToByte(reader)
-	fmt.Println("size plaintext:", len(plaintext))
+	// fmt.Println("size plaintext:", len(plaintext))
 	shuffleArr := make([]byte, Count)
 	for i := 0; i < Count; i++ {
 		shuffleArr[i] = byte(i)
@@ -52,12 +52,12 @@ func ConcurrentEncryption(reader io.Reader) {
 	}
 	w.Wait()
 
-	fmt.Println("shuffleArr:", shuffleArr)
+	// fmt.Println("shuffleArr:", shuffleArr)
 	//shuffle arrary 기반으로 data shuffling
 	//TODO: data shuffling없이 encryption 되도록 고쳐야 됨
 	st := time.Now()
 	shuffleSpace := len(plaintext) / Count
-	fmt.Println("len(plaintext), count, shuffleSpace:", len(plaintext), Count, shuffleSpace)
+	// fmt.Println("len(plaintext), count, shuffleSpace:", len(plaintext), Count, shuffleSpace)
 	for i := 0; i < Count; i++ {
 		tmp := make([]byte, shuffleSpace) // need fresh memory
 		srcStart := i * shuffleSpace
@@ -93,12 +93,12 @@ func ConcurrentEncryption(reader io.Reader) {
 	}
 	w.Wait()
 
-	totalCiphertextSize := 0
-	for i := 0; i < NumThread; i++ {
-		fmt.Printf("size ciphertext[%d]: %d\n", i, len(ciphertext[i]))
-		totalCiphertextSize = totalCiphertextSize + len(ciphertext[i])
-	}
-	fmt.Println("[size totalCiphertextSize (cipherTextBody)]:", totalCiphertextSize)
+	// totalCiphertextSize := 0
+	// for i := 0; i < NumThread; i++ {
+	// fmt.Printf("size ciphertext[%d]: %d\n", i, len(ciphertext[i]))
+	// 	totalCiphertextSize = totalCiphertextSize + len(ciphertext[i])
+	// }
+	// fmt.Println("[size totalCiphertextSize (cipherTextBody)]:", totalCiphertextSize)
 
 	//FAME
 	// fame := abe.NewFAME()
@@ -110,12 +110,12 @@ func ConcurrentEncryption(reader io.Reader) {
 	if err != nil {
 		log.Fatalf("Failed to marshal pubKeyBytes: %v", err)
 	}
-	secKeyBytes, err := json.Marshal(proxyGrpc.FameSecKey)
-	if err != nil {
-		log.Fatalf("Failed to marshal secKeyBytes: %v", err)
-	}
+	// secKeyBytes, err := json.Marshal(proxyGrpc.FameSecKey)
+	// if err != nil {
+	// 	log.Fatalf("Failed to marshal secKeyBytes: %v", err)
+	// }
 
-	fmt.Printf("Size pubKey: %d secKey: %d\n", len(pubKeyBytes), len(secKeyBytes))
+	// fmt.Printf("Size pubKey: %d secKey: %d\n", len(pubKeyBytes), len(secKeyBytes))
 
 	msp, err := abe.BooleanToMSP("((0 AND 1) OR (2 AND 3)) AND 5", false) // attribute가 많아질수록 시간이 오래 걸림
 	if err != nil {
@@ -125,18 +125,18 @@ func ConcurrentEncryption(reader io.Reader) {
 	//header 만들기
 	header := make([]byte, 0)
 	var famePubkeyLen []byte = big.NewInt(int64(len(pubKeyBytes))).Bytes()
-	fmt.Println("famePubkeyLen:", famePubkeyLen)
+	// fmt.Println("famePubkeyLen:", famePubkeyLen)
 	header = append(header, famePubkeyLen...)
-	fmt.Println("after push famePubkeyLen to header:", len(header))
+	// fmt.Println("after push famePubkeyLen to header:", len(header))
 	header = append(header, pubKeyBytes...)
-	fmt.Println("after push pubKeyBytes to header:", len(header))
+	// fmt.Println("after push pubKeyBytes to header:", len(header))
 	var secretHeader string
 	// iv (16bytes) + string(shuffleArr) (256bytes) + AESKeys (32bytes*N)
 	secretHeader = secretHeader + iv + string(shuffleArr)
 	for i := 0; i < NumThread; i++ {
 		secretHeader = secretHeader + aesKey[i]
 	}
-	fmt.Printf("size secretHeader: %d, shuffleArr: %d, iv(len): %d, iv:%s \n", len(secretHeader), len(shuffleArr), len(iv), iv)
+	// fmt.Printf("size secretHeader: %d, shuffleArr: %d, iv(len): %d, iv:%s \n", len(secretHeader), len(shuffleArr), len(iv), iv)
 
 	//fame encryption
 	fameCipher, err := proxyGrpc.Fame.Encrypt(secretHeader, msp, proxyGrpc.FamePubKey)
@@ -151,9 +151,9 @@ func ConcurrentEncryption(reader io.Reader) {
 		fameCipherLen = append(padding, fameCipherLen...)
 	}
 	header = append(header, fameCipherLen...)
-	fmt.Println("after push fameCipherLen to header:", len(header), len(fameCipherLen))
+	// fmt.Println("after push fameCipherLen to header:", len(header), len(fameCipherLen))
 	header = append(header, fameCipherBytes...)
-	fmt.Println("after push fameCipherBytes to header:", len(header))
+	// fmt.Println("after push fameCipherBytes to header:", len(header))
 	fmt.Println("[size header (cipherTextHeader)]", len(header))
 	FileCipherText = make([]byte, 0)
 	FileCipherText = append(FileCipherText, header...)

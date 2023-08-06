@@ -311,13 +311,12 @@ func Mssong_EncodeCapsule(capsule Capsule) (capsuleAsBytes []byte, err error) {
 	}
 	Sbytes := capsule.S.Bytes()
 
-	fmt.Println("size Ebytes, Vbytes, Sbytes", len(Ebytes), len(Vbytes), len(Sbytes))
+	// fmt.Println("size Ebytes, Vbytes, Sbytes", len(Ebytes), len(Vbytes), len(Sbytes))
 
 	sizeEbyte := byte(len(Ebytes)) //10진수: 91
 	sizeVbyte := byte(len(Vbytes)) //91
 	// sizeSbyte := byte(len(Sbytes)) //32
 
-	fmt.Printf("%x %x \n", sizeEbyte, sizeVbyte)
 	result := make([]byte, 0)
 	result = append(result, sizeEbyte)
 	result = append(result, sizeVbyte)

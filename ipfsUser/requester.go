@@ -61,7 +61,7 @@ func ConcurrentDecryption(attributeKey *abe.FAMEAttribKeys) {
 	}
 	start = end
 	cipherTextBody := FileCipherText[start:len(FileCipherText)]
-	fmt.Println("body start:", start, "end:", len(FileCipherText))
+	// fmt.Println("body start:", start, "end:", len(FileCipherText))
 	//5. iv (16bytes) + string(shuffleArr) (256bytes) + AESKeys (32bytes*N) <- shuffleArr는 []byte로 표현할 것
 	start = 0
 	end = start + 16 //iv
@@ -79,7 +79,7 @@ func ConcurrentDecryption(attributeKey *abe.FAMEAttribKeys) {
 		start = start + 32 //AES-256 (32bytes)
 	}
 
-	fmt.Printf("famePubKeyLen:%d  fameCipherLen:%d\n", famePubKeyLen, fameCipherLen)
+	// fmt.Printf("famePubKeyLen:%d  fameCipherLen:%d\n", famePubKeyLen, fameCipherLen)
 	fmt.Printf("iv:%s, len(shuffleArr): %d, NumThread:%d,aesKey:%+v \n", iv, len(shuffleArr), NumThread, aesKey)
 	fmt.Println("cipherTextBody size:", len(cipherTextBody))
 
@@ -108,10 +108,10 @@ func ConcurrentDecryption(attributeKey *abe.FAMEAttribKeys) {
 	//TODO: plainText가 다르네 (왜 맨 앞에 32bytes만 다를까...)
 	// 그래도 거의 성능 상으로는 비슷할 거니까 일단 두고... 됐다 치고 추후에 고치자
 
-	fmt.Println("shuffleArr:", shuffleArr)
+	// fmt.Println("shuffleArr:", shuffleArr)
 	//8. data swap - revert to original from shuffled data
 	shuffleSpace := len(FilePlainText) / Count
-	fmt.Println("len(plaintext), count, shuffleSpace:", len(FilePlainText), Count, shuffleSpace)
+	// fmt.Println("len(plaintext), count, shuffleSpace:", len(FilePlainText), Count, shuffleSpace)
 	for i := len(shuffleArr) - 1; i >= 0; i-- {
 		tmp := make([]byte, shuffleSpace) // need fresh memory
 		srcStart := i * shuffleSpace
@@ -181,11 +181,8 @@ func GetAttributeKey() *abe.FAMEAttribKeys {
 	if err != nil {
 		panic(err)
 	}
-	// fmt.Println("clientPubKeyString:", string(clientPubKeyBytes))
-	// fmt.Printf("clientPubKeyString: %#v\n", string(clientPubKeyBytes))
-	clientPriKeyString := string(clientPubKeyBytes)
-	fmt.Println(clientPriKeyString)
-	fmt.Printf("clientPubKey:%#v\n", clientPubKey)
+
+	// fmt.Printf("clientPubKey:%#v\n", clientPubKey)
 
 	//AttributeSet 설정
 	attributeSet := "0,2,3,5"
@@ -195,7 +192,7 @@ func GetAttributeKey() *abe.FAMEAttribKeys {
 	if err != nil {
 		log.Fatalf("could not greet: %v", err)
 	}
-	log.Printf("Greeting: %s", r.GetNewCapsule())
+	// log.Printf("Greeting: %s", r.GetNewCapsule())
 
 	capsuleBytes := r.GetNewCapsule()
 	reEncPubKeyBytes := r.GetReEncPubKey()
@@ -219,6 +216,6 @@ func GetAttributeKey() *abe.FAMEAttribKeys {
 		panic(err)
 	}
 	// fmt.Println("attributeKey:", attributeKey)
-	fmt.Println("func GetAttributeKey Done!")
+	// fmt.Println("func GetAttributeKey Done!")
 	return attributeKey
 }

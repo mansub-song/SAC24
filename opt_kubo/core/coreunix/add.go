@@ -418,8 +418,8 @@ func (adder *Adder) addFile(path string, file files.File) error {
 		}
 	}
 	ipfsUser.ConcurrentEncryption(reader)
-	ipfsUser.PrintFileCipherText()
-	
+	// ipfsUser.PrintFileCipherText()
+
 	dagnode, err := adder.add(reader)
 	if err != nil {
 		return err
