@@ -48,7 +48,7 @@ func encryptKeyGen(pubKey *ecdsa.PublicKey) (capsule *Capsule, keyBytes []byte, 
 		V: pubV,
 		S: s,
 	}
-	fmt.Println("old key:", hex.EncodeToString(keyBytes))
+	// fmt.Println("old key:", hex.EncodeToString(keyBytes))
 	return capsule, keyBytes, nil
 }
 

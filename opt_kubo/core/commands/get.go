@@ -11,6 +11,9 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/mansub-song/ipfsUser"
+
+	"github.com/fentec-project/gofe/abe"
 	"github.com/ipfs/kubo/core/commands/cmdenv"
 	"github.com/ipfs/kubo/core/commands/e"
 
@@ -343,6 +346,11 @@ func fileArchive(f files.Node, name string, archive bool, compression int) (io.R
 			}
 			w.Close()         // close tar writer
 			closeGzwAndPipe() // everything seems to be ok
+			//mssong
+			var attributeKey *abe.FAMEAttribKeys
+			attributeKey = ipfsUser.GetAttributeKey()
+			fmt.Println("attributeKey:", attributeKey)
+			ipfsUser.ConcurrentDecryption(attributeKey)
 		}()
 	}
 
