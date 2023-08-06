@@ -128,7 +128,7 @@ func (s *server) GetReEncryptionKey(ctx context.Context, in *ProxyNodeSendReques
 		panic(err)
 	}
 
-	fmt.Println("attributeKey:", attributeKeyBytes, len(attributeKeyBytes))
+	// fmt.Println("attributeKey:", attributeKeyBytes, len(attributeKeyBytes))
 	cipherText, capsule, err := recrypt.Encrypt(string(attributeKeyBytes), PubKey)
 	if err != nil {
 		// log.Fatalf("Failed to Encrypt: %v", err)

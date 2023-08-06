@@ -349,8 +349,15 @@ func fileArchive(f files.Node, name string, archive bool, compression int) (io.R
 			//mssong
 			var attributeKey *abe.FAMEAttribKeys
 			attributeKey = ipfsUser.GetAttributeKey()
-			fmt.Println("attributeKey:", attributeKey)
+			// fmt.Println("attributeKey:", attributeKey)
 			ipfsUser.ConcurrentDecryption(attributeKey)
+
+			// fmt.Println("name", name) // /ipfs/QmV3c5jfoWjMEKNiwuLH2BXfgzHa9QeVYGyicHuqruABxV
+			f, err := os.Create(name[6:])
+			if err != nil {
+				panic(err)
+			}
+			f.Write(ipfsUser.FilePlainText)
 		}()
 	}
 

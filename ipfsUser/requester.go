@@ -2,12 +2,15 @@ package ipfsUser
 
 import (
 	"context"
+	"crypto/aes"
+	"crypto/cipher"
 	"crypto/ecdsa"
 	"crypto/x509"
 	"encoding/json"
 	"fmt"
 	"log"
 	"math/big"
+	"sync"
 	"time"
 
 	"github.com/SherLzp/goRecrypt/curve"
@@ -29,6 +32,7 @@ func ConcurrentDecryption(attributeKey *abe.FAMEAttribKeys) {
 	end := start + 2
 	famePubKeyLen := new(big.Int).SetBytes(FileCipherText[start:end]).Int64()
 	// famePubKeyLen = famePubKeyLen
+
 	//2. [2:famePubKeyLen] 까지 읽어서 famePubKey 추출
 	FamePubKey := new(abe.FAMEPubKey)
 	start = end
@@ -37,10 +41,12 @@ func ConcurrentDecryption(attributeKey *abe.FAMEAttribKeys) {
 	if err != nil {
 		panic(err)
 	}
+
 	//3. 3bytes 읽어서 fameCipher 추출
 	start = end
 	end = start + 3
 	fameCipherLen := new(big.Int).SetBytes(FileCipherText[start:end]).Int64()
+
 	//4. attributeKey를 이용해서 fameCipher을 decryption input = {famecipher,attributeKey,famePubKey}
 	start = end
 	end = start + int(fameCipherLen)
@@ -53,12 +59,15 @@ func ConcurrentDecryption(attributeKey *abe.FAMEAttribKeys) {
 	if err != nil {
 		panic(err)
 	}
+	start = end
+	cipherTextBody := FileCipherText[start:len(FileCipherText)]
+	fmt.Println("body start:", start, "end:", len(FileCipherText))
 	//5. iv (16bytes) + string(shuffleArr) (256bytes) + AESKeys (32bytes*N) <- shuffleArr는 []byte로 표현할 것
 	start = 0
-	end = start + 16
+	end = start + 16 //iv
 	iv := secretHeader[start:end]
 	start = end
-	end = start + 256
+	end = start + 256 //shuffleArr
 	shuffleArr := []byte(secretHeader[start:end])
 	start = end
 	end = len(secretHeader)
@@ -67,14 +76,85 @@ func ConcurrentDecryption(attributeKey *abe.FAMEAttribKeys) {
 	aesKey := make([]string, NumThread)
 	for i := 0; i < NumThread; i++ {
 		aesKey[i] = secretHeader[start : start+32]
-		start = start + 32
+		start = start + 32 //AES-256 (32bytes)
 	}
 
 	fmt.Printf("famePubKeyLen:%d  fameCipherLen:%d\n", famePubKeyLen, fameCipherLen)
 	fmt.Printf("iv:%s, len(shuffleArr): %d, NumThread:%d,aesKey:%+v \n", iv, len(shuffleArr), NumThread, aesKey)
-	//6. threadDecryption
-	//7. return decrypted data & FileCipherText memory free
+	fmt.Println("cipherTextBody size:", len(cipherTextBody))
 
+	//6. threadDecryption
+	var w sync.WaitGroup
+	w.Add(NumThread)
+	decryptedText := make([][]byte, NumThread)
+	threadSpace := len(cipherTextBody) / NumThread
+	for i := 0; i < NumThread; i++ {
+		go func(i int) {
+			defer w.Done()
+			start := i * threadSpace
+			end := (i + 1) * threadSpace
+			// fmt.Println("size cipherTextBody[start:end], aesKey[i], iv:", len(cipherTextBody[start:end]), aesKey[i], iv)
+			decryptedText[i] = threadDecryption(cipherTextBody[start:end], aesKey[i], iv)
+		}(i)
+	}
+	w.Wait()
+
+	//7. return decrypted data & FileCipherText memory free
+	for i := 0; i < NumThread; i++ {
+		FilePlainText = append(FilePlainText, decryptedText[i]...)
+	}
+
+	// cipherText 같은지 확인 완료
+	//TODO: plainText가 다르네 (왜 맨 앞에 32bytes만 다를까...)
+	// 그래도 거의 성능 상으로는 비슷할 거니까 일단 두고... 됐다 치고 추후에 고치자
+
+	fmt.Println("shuffleArr:", shuffleArr)
+	//8. data swap - revert to original from shuffled data
+	shuffleSpace := len(FilePlainText) / Count
+	fmt.Println("len(plaintext), count, shuffleSpace:", len(FilePlainText), Count, shuffleSpace)
+	for i := len(shuffleArr) - 1; i >= 0; i-- {
+		tmp := make([]byte, shuffleSpace) // need fresh memory
+		srcStart := i * shuffleSpace
+		srcEnd := (i + 1) * shuffleSpace
+		dstStart := int(shuffleArr[i]) * shuffleSpace
+		dstEnd := (int(shuffleArr[i]) + 1) * shuffleSpace
+
+		copy(tmp, FilePlainText[srcStart:srcEnd])
+
+		copy(FilePlainText[srcStart:srcEnd], FilePlainText[dstStart:dstEnd])
+
+		copy(FilePlainText[dstStart:dstEnd], tmp)
+	}
+
+	//return FilePlainText
+	FileCipherText = nil
+}
+
+func threadDecryption(ciphertext []byte, key, iv string) []byte {
+	recoverytext := Ase256Decode(ciphertext, key, iv)
+	return recoverytext
+}
+
+// AES - CBC mode
+func Ase256Decode(ciphertext []byte, encKey string, iv string) (recoverytext []byte) {
+	bKey := []byte(encKey)
+	bIV := []byte(iv)
+
+	block, err := aes.NewCipher(bKey)
+	if err != nil {
+		panic(err)
+	}
+
+	recoverytext = make([]byte, len(ciphertext))
+	mode := cipher.NewCBCDecrypter(block, bIV)
+	mode.CryptBlocks(recoverytext, ciphertext)
+	return PKCS5UnPadding(recoverytext)
+}
+
+func PKCS5UnPadding(src []byte) []byte {
+	length := len(src)
+	unpadding := int(src[length-1])
+	return src[:(length - unpadding)]
 }
 
 func GetAttributeKey() *abe.FAMEAttribKeys {
