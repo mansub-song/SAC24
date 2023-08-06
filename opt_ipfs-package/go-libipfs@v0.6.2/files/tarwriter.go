@@ -43,6 +43,7 @@ func (w *TarWriter) writeDir(f Directory, fpath string) error {
 
 func (w *TarWriter) writeFile(f File, fpath string) error {
 	size, err := f.Size()
+	// fmt.Printf("file f:%#v\n", f)
 	if err != nil {
 		return err
 	}

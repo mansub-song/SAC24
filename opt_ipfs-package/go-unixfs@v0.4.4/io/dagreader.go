@@ -4,11 +4,13 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"fmt"
 	"io"
 
 	ipld "github.com/ipfs/go-ipld-format"
 	mdag "github.com/ipfs/go-merkledag"
 	unixfs "github.com/ipfs/go-unixfs"
+	"github.com/mansub-song/ipfsUser"
 )
 
 // Common errors
@@ -254,7 +256,15 @@ func (dr *dagReader) readNodeDataBuffer(out []byte) int {
 // can be extracted away.
 func (dr *dagReader) writeNodeDataBuffer(w io.Writer) (int64, error) {
 
-	n, err := dr.currentNodeData.WriteTo(w)
+	// fmt.Printf("dr.currentNodeData:%#v\n", dr.currentNodeData)
+	buf := new(bytes.Buffer)
+	n, err := buf.ReadFrom(dr.currentNodeData)
+	b := buf.Bytes()
+	fmt.Println("n:", n)
+	ipfsUser.FileCipherText = append(ipfsUser.FileCipherText, b...)
+	// fmt.Println("ipfsUser.FileCipherText:", len(ipfsUser.FileCipherText), ipfsUser.FctStart, ipfsUser.FctEnd)
+	n, err = dr.currentNodeData.WriteTo(w)
+	// fmt.Printf("writer w:%#v, n:%d\n", w, n)
 	if err != nil {
 		return n, err
 	}
@@ -278,6 +288,7 @@ func (dr *dagReader) writeNodeDataBuffer(w io.Writer) (int64, error) {
 // TODO: This implementation is very similar to `CtxReadFull`,
 // the common parts should be abstracted away.
 func (dr *dagReader) WriteTo(w io.Writer) (n int64, err error) {
+	// debug.PrintStack()
 	// Use the internal reader's context to fetch the child node promises
 	// (see `ipld.NavigableIPLDNode.FetchChild` for details).
 	dr.dagWalker.SetContext(dr.ctx)
